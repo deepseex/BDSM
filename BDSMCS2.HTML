@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>属性测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fce7f3 0%, #e0efff 50%, #fce7f3 100%);
+            background-size: 400% 400%;
+            animation: gradientFlow 18s ease infinite;
+            padding: 30px 0;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes pulseWarning {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.6); }
+            50% { box-shadow: 0 0 24px 10px rgba(236, 72, 153, 0.35); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOutUp {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-15px);
+            }
+        }
+
+        @keyframes rippleSpread {
+            0% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        .warning {
+            animation: pulseWarning 1s ease-in-out 3;
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            min-height: 320px;
+        }
+
+        .question-index {
+            text-align: center;
+            font-size: 14px;
+            color: #9ca3af;
+            margin-bottom: 16px;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .question {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 18px;
+            padding: 32px 24px;
+            box-shadow: 0 4px 20px rgba(100, 100, 150, 0.08);
+            animation: fadeInUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question.leave {
+            animation: fadeOutUp 0.25s ease forwards;
+        }
+
+        .question-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #2a3342;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .option-btn {
+            border: none;
+            border-radius: 50%;
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6px;
+            line-height: 1.25;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeInUp 0.4s ease forwards;
+        }
+
+        .option-btn:nth-child(1) { animation-delay: 0.1s; }
+        .option-btn:nth-child(2) { animation-delay: 0.18s; }
+        .option-btn:nth-child(3) { animation-delay: 0.26s; }
+        .option-btn:nth-child(4) { animation-delay: 0.34s; }
+        .option-btn:nth-child(5) { animation-delay: 0.42s; }
+
+        .option-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            pointer-events: none;
+        }
+
+        .option-btn:active::after {
+            animation: rippleSpread 0.5s ease-out;
+        }
+
+        .option-btn:hover {
+            transform: scale(1.08);
+        }
+
+        .option-btn:active {
+            transform: scale(0.95);
+        }
+
+        .option-btn.selected {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.8), 0 0 22px rgba(236, 72, 153, 0.5);
+            z-index: 2;
+        }
+
+        .opt-1 { width: 72px; height: 72px; background-color: #9333ea; font-size: 11px; }
+        .opt-1.selected { box-shadow: 0 0 0 3px rgba(255,255,255,0.8), 0 0 22px rgba(147, 51, 234, 0.5); }
+        .opt-2 { width: 62px; height: 62px; background-color: #ec4899; font-size: 10px; }
+        .opt-2.selected { box-shadow: 0 0 0 3px rgba(255,255,255,0.8), 0 0 22px rgba(236, 72, 153, 0.5); }
+        .opt-3 { width: 52px; height: 52px; background-color: #9ca3af; font-size: 10px; }
+        .opt-3.selected { box-shadow: 0 0 0 3px rgba(255,255,255,0.8), 0 0 22px rgba(156, 163, 175, 0.5); }
+        .opt-4 { width: 62px; height: 62px; background-color: #60a5fa; font-size: 10px; }
+        .opt-4.selected { box-shadow: 0 0 0 3px rgba(255,255,255,0.8), 0 0 22px rgba(96, 165, 250, 0.5); }
+        .opt-5 { width: 72px; height: 72px; background-color: #1d4ed8; font-size: 11px; }
+        .opt-5.selected { box-shadow: 0 0 0 3px rgba(255,255,255,0.8), 0 0 22px rgba(29, 78, 216, 0.5); }
+
+        .nav-buttons {
+            max-width: 800px;
+            margin: 30px auto 0;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .nav-btn {
+            padding: 12px 26px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(12px);
+            background: rgba(255,255,255,0.8);
+            color: #2a3342;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            flex: 1;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .nav-btn:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+
+        .nav-btn.next-btn {
+            background: linear-gradient(135deg, #ec4899, #3b82f6);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+        }
+
+        .nav-btn.next-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+        }
+
+        .result-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-title {
+            font-size: 34px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ec4899, #1d4ed8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.7s ease;
+        }
+
+        .role-type {
+            font-size: 24px;
+            color: #ec4899;
+            margin-bottom: 10px;
+            font-weight: 500;
+            animation: fadeInUp 0.7s ease 0.1s both;
+        }
+
+        .role-desc {
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 50px;
+            line-height: 1.6;
+            animation: fadeInUp 0.7s ease 0.2s both;
+        }
+
+        .charts-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 30px;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.9s ease 0.3s both;
+        }
+
+        .chart-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .chart-item:nth-child(1) { animation-delay: 0.4s; }
+        .chart-item:nth-child(2) { animation-delay: 0.5s; }
+        .chart-item:nth-child(3) { animation-delay: 0.6s; }
+        .chart-item:nth-child(4) { animation-delay: 0.7s; }
+        .chart-item:nth-child(5) { animation-delay: 0.8s; }
+
+        .bar-chart {
+            width: 50px;
+            height: 160px;
+            background-color: #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);
+        }
+
+        .bar-fill {
+            width: 100%;
+            height: 0;
+            border-radius: 12px 12px 0 0;
+            transition: height 1.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .chart-label {
+            font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 0;
+            }
+            .question { padding: 24px 18px; }
+            .question-title { font-size: 16px; margin-bottom: 24px; }
+            .options { gap: 8px; }
+            .opt-1 { width: 56px; height: 56px; font-size: 10px; }
+            .opt-2 { width: 48px; height: 48px; font-size: 9px; }
+            .opt-3 { width: 42px; height: 42px; font-size: 9px; }
+            .opt-4 { width: 48px; height: 48px; font-size: 9px; }
+            .opt-5 { width: 56px; height: 56px; font-size: 10px; }
+            .result-title { font-size: 28px; }
+            .role-type { font-size: 20px; }
+            .bar-chart { width: 40px; height: 130px; }
+            .charts-container { gap: 20px; }
+            .nav-btn { padding: 10px 16px; font-size: 15px; }
+            .nav-buttons { padding: 0 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container" id="quizContainer">
+        <div class="question-index" id="questionIndex">第 1 题 / 共 50 题</div>
+        <div class="question" id="questionBox"></div>
+    </div>
+
+    <div class="nav-buttons">
+        <button class="nav-btn prev-btn" id="prevBtn">上一题</button>
+        <button class="nav-btn next-btn" id="nextBtn">下一题</button>
+    </div>
+
+    <div class="result-container" id="resultContainer"></div>
+
+    <script>
+        // ========== 数据配置 ==========
+        const currentIndex = { value: 0 };
+        const scores = new Array(50).fill(null);
+        let isSwitching = false;
+
+        // 需要调整分数的题目（0基索引）：第2、3、35、43、45、46、47题
+        const ADJUST_INDEXES = [1, 2, 34, 42, 44, 45, 46];
+
+        // 属性对应标签加分规则
+        const ATTR_TAG_BONUS = {
+            sado: {
+                '行刑官': 5,
+                '训奴师': 4,
+                '宠物主': 2
+            },
+            dom: {
+                '行刑官': 2,
+                '训奴师': 4,
+                '宠物主': 4
+            },
+            switch: {
+                '宠物主': 2,
+                '开拓者': 4,
+                '求契友': 5,
+                '自构徒': 3,
+                '稚顽童': 2
+            },
+            sub: {
+                '稚顽童': 5,
+                '小宠物': 5,
+                '自构徒': 2,
+                '拟器人': 2
+            },
+            maso: {
+                '负罪徒': 4,
+                '拟器人': 3
+            }
+        };
+
+        const questions = [
+            "1.在和性爱对象进行性行为时，我享受欺负ta的感觉。",
+            "2.在性爱对象身上倾泻暴力，使我感到兴奋。",
+            "3.我希望可以伤害性爱对象，在ta身上留下我的痕迹（伤口或者淤青）。",
+            "4.想到性爱对象焦急和痛苦的样子，让感到兴奋。",
+            "5.我希望可以伤害性爱对象，在ta身上留下我的痕迹（伤口或者淤青）。（好好想想再选择一次）",
+            "6.我想要束缚我的伴侣，这让我感到兴奋",
+            "7.我喜欢羞辱我的性爱对象，贬低ta会让我兴奋。",
+            "8.我希望我的伴侣把服务我和讨好我作为人生目标。",
+            "9.我常常幻想可以骑/坐在伴侣身上。",
+            "10.我常常幻想把伴侣牵上绳子当做宠物一样对待。",
+            "11.一想到伴侣的行动可以听从我的指挥行动，我就觉得兴奋。",
+            "12.我希望伴侣的行动可以听从我的命令，当ta完成我的要求时，我会觉得兴奋。",
+            "13.我不喜欢惊喜，一切都朝着我的预想发展会让我感到开心。",
+            "14.如果伴侣会因为我的照顾变得无能，我会感到兴奋和满足。",
+            "15.我希望可以指导我的伴侣的一切行为，不止局限在性爱之中。",
+            "16.我常常觉得我的伴侣犯错的时候非常可爱。",
+            "17.我认为可以随时惩罚（可以是辱骂）我的伴侣让我感到开心。",
+            "18.我常常幻想设计各种情趣玩法，并希望可以在和伴侣性爱时在ta身上实践这些调教。",
+            "19.我喜欢并且擅长照顾伴侣的情绪，成功安抚伴侣情绪让我有一种成就感。",
+            "20.我常常觉得我的伴侣像是个小孩子或者小动物，这让我想要照顾ta。",
+            "21.我有时想要臣服于伴侣，有时又想要被支配，我都想试试。",
+            "22.我非常喜欢和伴侣讨论情趣玩法，会希望和ta体验各种不同的权力关系。",
+            "23.我希望有一个可以和我尝试各种玩法的伴侣，无论ta是什么属性，我都会爱上ta",
+            "24.在性爱中，只要是我的爱人，无论ta想和我尝试什么玩法，我都乐意接受。",
+            "25.我想要开发和伴侣的情趣玩法，因为我觉得这样可以加固我们的感情。",
+            "26.我不满足于固定的性爱模式，想要在自己身上挑战各种新奇的玩法。",
+            "27.我希望向伴侣分享我的各种癖好，好让ta调教我",
+            "28.当我认为我的伴侣非常有能力时，我会想要把我的一切托付给他，这让我感到安心。",
+            "29.我希望在特定的时候彻底放下尊严臣服于我的性伴侣，平时还是正常的相处。",
+            "30.当我的伴侣不断提出新奇的情趣点子并且想要和我实践时，无论这个电子里我是处于下位还是上位，我都想满足ta。",
+            "31.我喜欢被羞辱，被侮辱和欺负让我感到性兴奋。",
+            "32.我希望我的性伴侣可以看到我的一切缺点，我想要向他毫不保留的展示我的不足。",
+            "33.我希望我做错了的时候可以被惩罚，这让我感到安心。",
+            "34.我总是感到无力，自己没什么掌控局面的能力。",
+            "35.被当做一个不被重视的随用随抛的器物让我感到兴奋和安心。",
+            "36.我总觉得自己配不上现在的位置，害怕一个错误就被打回原型。",
+            "37.我感觉维持一个人类的体面让我感觉很累，我会想要退化为动物。",
+            "38.被要求发出像小动物一样的叫声会让我感到性兴奋。",
+            "39.我感觉做一个大人好累啊，好想回到小时候。",
+            "40.我不想自己做决定，我做不好这些",
+            "41.性爱时，被要求像动物一样行动让我感到兴奋。",
+            "42.性爱时，被限制行动让我感到兴奋。",
+            "43.我喜欢作为一个抹布，清理性伴侣的足部，甚至是其他部位。",
+            "44.我喜爱疼痛，被性伴侣殴打欺负让我感到兴奋",
+            "45.当性爱对象露出鄙视或者嫌弃我的表情时，我会感到兴奋",
+            "46.发生性关系时我想要被为难甚至伤害，让性伴侣看到我哭泣或难堪的样子，让我感到兴奋。",
+            "47.我想要性伴侣殴打或者用别的方法刺激我的性器官，让它们感到疼痛",
+            "48.当我被欺负，殴打的时候，我反而会觉得安心。",
+            "49.让性对象支配我的身体，我完全无法反抗，我会感到兴奋。",
+            "50.我常常担心性爱对象会对我的性能力感到不满。"
+        ];
+
+        const options = [
+            { text: '这完全不是我', score: 0, class: 'opt-1' },
+            { text: '这似乎不是我', score: 1, class: 'opt-2' },
+            { text: '我不知道', score: 2, class: 'opt-3' },
+            { text: '这好像是我', score: 3, class: 'opt-4' },
+            { text: '这完全就是我', score: 4, class: 'opt-5' }
+        ];
+
+        const attributes = [
+            { name: 'sado', start: 1, end: 10 },
+            { name: 'dom', start: 11, end: 20 },
+            { name: 'switch', start: 21, end: 30 },
+            { name: 'sub', start: 31, end: 40 },
+            { name: 'maso', start: 41, end: 50 }
+        ];
+
+        const tags = [
+            { id: '行刑官', desc: '肆意殴打小m让你血液沸腾，鞭子每响一声你的多巴胺与肾上腺素就跟着飙升，这种完全掌控别人命运的感觉就是你追求的', questions: [2, 3, 4, 5, 7] },
+            { id: '训奴师', desc: '你的要求和命令不容置疑，ta的颜面荡然无存，你要ta褪去所有的理智与尊严，只为取悦高高在上的你', questions: [6, 8, 9, 15, 17] },
+            { id: '宠物主', desc: '看着这个可爱的小家伙笨手笨脚的取悦你，你的心情从未如此舒畅过，你加入这个圈子就是为了能有一个眼里只有你的小家伙接受你的宠爱', questions: [1, 10, 14, 16, 20] },
+            { id: '开发者', desc: '这个那个，好像都不错啊，还有那些也都想试试，你来这个圈子就是为了找一个可以把这些想法实践在ta身上的人。', questions: [12, 13, 18, 21, 25] },
+            { id: '求契友', desc: '你不在乎上位还是下位，那些不过都是些增加情趣的游戏罢了，你只希望有一个人可以陪你一起探索这些刺激的玩法', questions: [19, 22, 23, 24, 32] },
+            { id: '自构徒', desc: '“我倒要看看怎么个事”，你总是幻想各种玩法和调教可以落实在自己身上，你加入这个圈子就是希望有一个可以用你自己设计的玩法调教你。', questions: [11, 27, 29, 30, 33] },
+            { id: '稚顽童', desc: '“我总是犯错，我应该被惩罚”你总是担心自己做的不够好，希望有一个人可以包容引导和管教你', questions: [28, 26, 36, 39, 40] },
+            { id: '小宠物', desc: '做人还是太累了，不如放弃所有的尊严，快快乐乐做条无脑的小宠物', questions: [34, 37, 38, 41, 42] },
+            { id: '拟器人', desc: '“我不值得被重视，求您侮辱我”，为了维持体面耗尽了你的所有力气和手段，此刻你只希望被践踏和蔑视，被当做可随取随用的器物。', questions: [31, 35, 43, 45, 50] },
+            { id: '负罪徒', desc: '伤害，是重要的证明，惩罚在你的大脑中兜兜转转变成了多巴胺，只有这样你才能感受到安心。', questions: [44, 46, 47, 48, 49] }
+        ];
+
+        const colorScale = [
+            '#FFFFFF', '#FFE5F3', '#FFCBE7', '#FFB1DB', '#FF97CF',
+            '#FF7CC3', '#FF62B7', '#FF48AB', '#FF2E9F', '#FF1493'
+        ];
+
+        // ========== DOM 元素 ==========
+        const questionBox = document.getElementById('questionBox');
+        const questionIndex = document.getElementById('questionIndex');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const quizContainer = document.getElementById('quizContainer');
+        const resultContainer = document.getElementById('resultContainer');
+
+        // ========== 工具函数 ==========
+        // 分数调整公式：xn + (xn - 2) * 1.5
+        function adjustScore(x) {
+            return x + (x - 2) * 1.5;
+        }
+
+        // 生成最终得分数组
+        function getFinalScores() {
+            return scores.map((s, i) => {
+                if (ADJUST_INDEXES.includes(i)) {
+                    return adjustScore(s);
+                }
+                return s;
+            });
+        }
+
+        function getColor(percent) {
+            const idx = Math.min(Math.floor(percent / 10), 9);
+            return colorScale[Math.max(0, idx)];
+        }
+
+        function darkenColor(hex, percent) {
+            const r = parseInt(hex.slice(1,3), 16);
+            const g = parseInt(hex.slice(3,5), 16);
+            const b = parseInt(hex.slice(5,7), 16);
+            const nr = Math.max(0, Math.round(r * (1 - percent/100)));
+            const ng = Math.max(0, Math.round(g * (1 - percent/100)));
+            const nb = Math.max(0, Math.round(b * (1 - percent/100)));
+            return `#${nr.toString(16).padStart(2,'0')}${ng.toString(16).padStart(2,'0')}${nb.toString(16).padStart(2,'0')}`;
+        }
+
+        function createBar(percent, color) {
+            const dark = darkenColor(color, 12);
+            const gradient = `linear-gradient(to top, ${color}, ${dark})`;
+            return `<div class="bar-chart"><div class="bar-fill" style="background: ${gradient};"></div></div>`;
+        }
+
+        // ========== 渲染函数 ==========
+        function renderQuestion() {
+            const idx = currentIndex.value;
+            const q = questions[idx];
+            const currentScore = scores[idx];
+
+            questionIndex.textContent = `第 ${idx + 1} 题 / 共 50 题`;
+
+            let html = `<div class="question-title">${q}</div><div class="options">`;
+            options.forEach((opt) => {
+                const selected = currentScore === opt.score ? ' selected' : '';
+                html += `<button class="option-btn ${opt.class}${selected}" data-score="${opt.score}">${opt.text}</button>`;
+            });
+            html += '</div>';
+
+            questionBox.innerHTML = html;
+
+            // 绑定选项点击事件
+            questionBox.querySelectorAll('.option-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const score = parseInt(btn.dataset.score);
+                    scores[idx] = score;
+                    questionBox.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                });
+            });
+
+            prevBtn.disabled = idx === 0;
+            nextBtn.textContent = idx === questions.length - 1 ? '提交答案' : '下一题';
+        }
+
+        function switchQuestion(direction) {
+            if (isSwitching) return;
+            isSwitching = true;
+
+            questionBox.classList.add('leave');
+
+            setTimeout(() => {
+                currentIndex.value += direction;
+                renderQuestion();
+                questionBox.classList.remove('leave');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                isSwitching = false;
+            }, 250);
+        }
+
+        function jumpToUnanswered(index) {
+            currentIndex.value = index;
+            renderQuestion();
+            questionBox.classList.add('warning');
+            setTimeout(() => questionBox.classList.remove('warning'), 3000);
+        }
+
+        function showResult() {
+            const finalScores = getFinalScores();
+
+            // 1. 计算五大属性得分（使用调整后分数）
+            attributes.forEach(attr => {
+                let sum = 0;
+                for (let i = attr.start - 1; i < attr.end; i++) {
+                    sum += finalScores[i];
+                }
+                attr.score = sum;
+                attr.percent = Math.min(100, Math.max(0, sum * 2.5)); // 限制在0-100%显示
+                attr.color = getColor(attr.percent);
+            });
+
+            // 2. 计算标签基础得分（使用调整后分数）
+            tags.forEach(tag => {
+                let sum = 0;
+                tag.questions.forEach(q => {
+                    sum += finalScores[q - 1];
+                });
+                tag.score = sum;
+            });
+
+            // 3. 找出最高属性
+            const topAttr = attributes.reduce((a, b) => a.score > b.score ? a : b);
+
+            // 4. 根据最高属性给标签加上额外分数
+            const bonusMap = ATTR_TAG_BONUS[topAttr.name];
+            if (bonusMap) {
+                tags.forEach(tag => {
+                    if (bonusMap[tag.id]) {
+                        tag.score += bonusMap[tag.id];
+                    }
+                });
+            }
+
+            // 5. 加分结束后，找出最终最高标签
+            const topTag = tags.reduce((a, b) => a.score > b.score ? a : b);
+
+            // 6. 渲染结果页面
+            let html = '';
+            html += `<h1 class="result-title">测试结果：${topAttr.name}</h1>`;
+            html += `<div class="role-type">角色类型：${topTag.id}</div>`;
+            html += `<div class="role-desc">${topTag.desc}</div>`;
+            html += '<div class="charts-container">';
+            attributes.forEach(attr => {
+                html += `<div class="chart-item">${createBar(attr.percent, attr.color)}<div class="chart-label">${attr.name}</div></div>`;
+            });
+            html += '</div>';
+
+            resultContainer.innerHTML = html;
+
+            // 切换显示
+            quizContainer.style.display = 'none';
+            document.querySelector('.nav-buttons').style.display = 'none';
+            resultContainer.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // 柱状图动画
+            setTimeout(() => {
+                const bars = document.querySelectorAll('.bar-fill');
+                const percents = attributes.map(a => a.percent);
+                bars.forEach((bar, i) => {
+                    setTimeout(() => {
+                        bar.style.height = percents[i] + '%';
+                    }, i * 100);
+                });
+            }, 300);
+        }
+
+        function calculateResult() {
+            // 检查是否有未答题
+            const firstUnanswered = scores.findIndex(s => s === null);
+            if (firstUnanswered !== -1) {
+                jumpToUnanswered(firstUnanswered);
+                return;
+            }
+            showResult();
+        }
+
+        // ========== 事件绑定 ==========
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex.value > 0) {
+                switchQuestion(-1);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentIndex.value < questions.length - 1) {
+                switchQuestion(1);
+            } else {
+                calculateResult();
+            }
+        });
+
+        // ========== 初始化 ==========
+        renderQuestion();
+    </script>
+</body>
+</html>
